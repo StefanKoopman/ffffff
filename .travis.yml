@@ -22,8 +22,8 @@ android:
 #install: true
 before_install:
   - chmod +x gradlew
-#before_script:
-#  - echo y | android update sdk --no-ui --filter build-tools-24.0.0,android-24,build-tools-23.0.3,android-23,extra-android-m2repository
+before_script:
+  - echo y | android update sdk --no-ui --filter build-tools-25.0.0,android-25
 script:
 #  - sudo apt-get update && sudo apt-get install oracle-java8-installer
 #  - java -version
