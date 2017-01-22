@@ -1,9 +1,11 @@
 package com.singleuseapps.ffffff;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -21,7 +23,9 @@ public class MainActivity extends AppCompatActivity {
     private int colorIndex = 0;
     private ArrayList<Integer> color = new ArrayList<>();
     private FrameLayout frameLayout;
-    private TextView textColor;
+    private TextView textColor, mTextClicks;
+    private int clicks = 0;
+    private SharedPreferences mSharedPref;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,18 +35,39 @@ public class MainActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_fullscreen);
 
+        mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        clicks = mSharedPref.getInt("clicks",0);
+
         fillColors();
 
         textColor = (TextView)findViewById(R.id.text_color);
+        mTextClicks = (TextView)findViewById(R.id.text_clicks);
 
 
         frameLayout = (FrameLayout)findViewById(R.id.layout);
         frameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                clicks += 1;
+                mTextClicks.setText("Aantal kliks: " + clicks);
                 setNextColor();
             }
         });
+    }
+
+    @Override
+    protected void onPause() {
+        SharedPreferences.Editor editor = mSharedPref.edit();
+        editor.putInt("clicks",clicks);
+        editor.apply();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        clicks = PreferenceManager.getDefaultSharedPreferences(this).getInt("clicks",0);
+        mTextClicks.setText("Aantal kliks: " + clicks);
+        super.onResume();
     }
 
     private void fillColors(){
