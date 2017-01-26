@@ -5,9 +5,9 @@ android {
     signingConfigs {
         release {
             storeFile file("ffffff.jks")
-            storePassword "opensource"
+            storePassword "open-source"
             keyAlias "ffffff"
-            keyPassword "opensource"
+            keyPassword "open-source"
         }
     }
 
