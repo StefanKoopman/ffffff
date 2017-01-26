@@ -6,14 +6,20 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.games.Games;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -26,6 +32,16 @@ public class MainActivity extends AppCompatActivity {
     private TextView textColor, mTextClicks;
     private int clicks = 0;
     private SharedPreferences mSharedPref;
+    private GoogleApiClient mGoogleApiClient;
+
+    protected synchronized void buildGoogleApiClient(){
+        mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(Games.API).addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+            @Override
+            public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+            }
+        }).build();
+        mGoogleApiClient.connect();
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_fullscreen);
+
+        buildGoogleApiClient();
 
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         clicks = mSharedPref.getInt("clicks",0);
@@ -44,29 +62,110 @@ public class MainActivity extends AppCompatActivity {
         mTextClicks = (TextView)findViewById(R.id.text_clicks);
 
 
+
+
+
         frameLayout = (FrameLayout)findViewById(R.id.layout);
         frameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 clicks += 1;
                 mTextClicks.setText("Aantal kliks: " + clicks);
+                //startActivityForResult(Games.Leaderboards.getLeaderboardIntent(mGoogleApiClient,
+                      //  "CgkI3LHE-JoJEAIQAQ"), 1337);
+              //  startActivityForResult(Games.Achievements.getAchievementsIntent(mGoogleApiClient,));
+                if(clicks == 50){
+                    Games.Achievements.unlock(mGoogleApiClient,"CgkI3LHE-JoJEAIQAg");
+                }else if(clicks == 16581375){
+                    Games.Achievements.unlock(mGoogleApiClient,"CgkI3LHE-JoJEAIQBw");
+                }
+
+
                 setNextColor();
             }
         });
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        clicks += 1;
+                        mTextClicks.setText("Aantal kliks: " + clicks);
+                        //startActivityForResult(Games.Leaderboards.getLeaderboardIntent(mGoogleApiClient,
+                        //  "CgkI3LHE-JoJEAIQAQ"), 1337);
+                        //  startActivityForResult(Games.Achievements.getAchievementsIntent(mGoogleApiClient,));
+                        if(clicks == 50){
+                            Games.Achievements.unlock(mGoogleApiClient,"CgkI3LHE-JoJEAIQAg");
+                        }else if(clicks == 16581375){
+                            Games.Achievements.unlock(mGoogleApiClient,"CgkI3LHE-JoJEAIQBw");
+                        }
+
+
+                        setNextColor();
+                        goOn();
+                    }
+                });
+            }
+        },10);
     }
+
+    private void goOn(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        clicks += 1;
+                        mTextClicks.setText("Aantal kliks: " + clicks);
+                        //startActivityForResult(Games.Leaderboards.getLeaderboardIntent(mGoogleApiClient,
+                        //  "CgkI3LHE-JoJEAIQAQ"), 1337);
+                        //  startActivityForResult(Games.Achievements.getAchievementsIntent(mGoogleApiClient,));
+                        if(clicks == 50){
+                            Games.Achievements.unlock(mGoogleApiClient,"CgkI3LHE-JoJEAIQAg");
+                        }else if(clicks == 16581375){
+                            Games.Achievements.unlock(mGoogleApiClient,"CgkI3LHE-JoJEAIQBw");
+                        }
+
+
+                        setNextColor();
+                        goOn();
+                    }
+                });
+            }
+        },10);
+    }
+
 
     @Override
     protected void onPause() {
         SharedPreferences.Editor editor = mSharedPref.edit();
         editor.putInt("clicks",clicks);
         editor.apply();
+        if(!mGoogleApiClient.isConnected()){
+            mGoogleApiClient.connect();
+        }
+        Games.Leaderboards.submitScore(mGoogleApiClient,"CgkI3LHE-JoJEAIQAQ",clicks);
         super.onPause();
     }
 
     @Override
+    protected void onDestroy() {
+        mGoogleApiClient.disconnect();
+        super.onDestroy();
+    }
+
+    @Override
     protected void onResume() {
+        if(!mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.connect();
+        }
         clicks = PreferenceManager.getDefaultSharedPreferences(this).getInt("clicks",0);
         mTextClicks.setText("Aantal kliks: " + clicks);
+
+
         super.onResume();
     }
 
