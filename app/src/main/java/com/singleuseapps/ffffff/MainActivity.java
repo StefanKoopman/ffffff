@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -61,23 +62,33 @@ public class MainActivity extends AppCompatActivity {
         textColor = (TextView)findViewById(R.id.text_color);
         mTextClicks = (TextView)findViewById(R.id.text_clicks);
 
-
-
-
-
         frameLayout = (FrameLayout)findViewById(R.id.layout);
+        Button mButtonLeaderBords = (Button)findViewById(R.id.button_leaderbord);
+        mButtonLeaderBords.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mGoogleApiClient.isConnected()){
+                    /*startActivityForResult(Games.Leaderboards.getLeaderboardIntent(mGoogleApiClient,
+                            "CgkI3LHE-JoJEAIQAQ"), 1337);*/
+
+                    startActivityForResult(Games.Achievements.getAchievementsIntent(mGoogleApiClient),1000);
+
+                }
+            }
+        });
+
         frameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 clicks += 1;
-                mTextClicks.setText("Aantal kliks: " + clicks);
-                //startActivityForResult(Games.Leaderboards.getLeaderboardIntent(mGoogleApiClient,
-                      //  "CgkI3LHE-JoJEAIQAQ"), 1337);
-              //  startActivityForResult(Games.Achievements.getAchievementsIntent(mGoogleApiClient,));
-                if(clicks == 50){
-                    Games.Achievements.unlock(mGoogleApiClient,"CgkI3LHE-JoJEAIQAg");
-                }else if(clicks == 16581375){
-                    Games.Achievements.unlock(mGoogleApiClient,"CgkI3LHE-JoJEAIQBw");
+                mTextClicks.setText(clicks+"");
+
+                if(mGoogleApiClient.isConnected()) {
+                    if (clicks == 50) {
+                        Games.Achievements.unlock(mGoogleApiClient, "CgkI3LHE-JoJEAIQAg");
+                    } else if (clicks == 16581375) {
+                        Games.Achievements.unlock(mGoogleApiClient, "CgkI3LHE-JoJEAIQBw");
+                    }
                 }
 
 
@@ -85,57 +96,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        clicks += 1;
-                        mTextClicks.setText("Aantal kliks: " + clicks);
-                        //startActivityForResult(Games.Leaderboards.getLeaderboardIntent(mGoogleApiClient,
-                        //  "CgkI3LHE-JoJEAIQAQ"), 1337);
-                        //  startActivityForResult(Games.Achievements.getAchievementsIntent(mGoogleApiClient,));
-                        if(clicks == 50){
-                            Games.Achievements.unlock(mGoogleApiClient,"CgkI3LHE-JoJEAIQAg");
-                        }else if(clicks == 16581375){
-                            Games.Achievements.unlock(mGoogleApiClient,"CgkI3LHE-JoJEAIQBw");
-                        }
-
-
-                        setNextColor();
-                        goOn();
-                    }
-                });
-            }
-        },10);
-    }
-
-    private void goOn(){
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        clicks += 1;
-                        mTextClicks.setText("Aantal kliks: " + clicks);
-                        //startActivityForResult(Games.Leaderboards.getLeaderboardIntent(mGoogleApiClient,
-                        //  "CgkI3LHE-JoJEAIQAQ"), 1337);
-                        //  startActivityForResult(Games.Achievements.getAchievementsIntent(mGoogleApiClient,));
-                        if(clicks == 50){
-                            Games.Achievements.unlock(mGoogleApiClient,"CgkI3LHE-JoJEAIQAg");
-                        }else if(clicks == 16581375){
-                            Games.Achievements.unlock(mGoogleApiClient,"CgkI3LHE-JoJEAIQBw");
-                        }
-
-
-                        setNextColor();
-                        goOn();
-                    }
-                });
-            }
-        },10);
     }
 
 
@@ -147,7 +107,9 @@ public class MainActivity extends AppCompatActivity {
         if(!mGoogleApiClient.isConnected()){
             mGoogleApiClient.connect();
         }
-        Games.Leaderboards.submitScore(mGoogleApiClient,"CgkI3LHE-JoJEAIQAQ",clicks);
+        if(mGoogleApiClient.isConnected()) {
+            Games.Leaderboards.submitScore(mGoogleApiClient, "CgkI3LHE-JoJEAIQAQ", clicks);
+        }
         super.onPause();
     }
 
@@ -163,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
             mGoogleApiClient.connect();
         }
         clicks = PreferenceManager.getDefaultSharedPreferences(this).getInt("clicks",0);
-        mTextClicks.setText("Aantal kliks: " + clicks);
+        mTextClicks.setText(clicks+"");
 
 
         super.onResume();

@@ -19,14 +19,23 @@
 
     <com.singleuseapps.ffffff.AlteTextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="32dp"
         android:id="@+id/text_clicks"
-        android:padding="12dp"
-        android:text="Aantal kliks: 0"
+        android:gravity="center_vertical"
+        android:layout_margin="8dp"
+        android:text="0"
+        />
+
+    <Button
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="8dp"
+        android:backgroundTint="#000"
+        android:background="@drawable/ic_people_white_48dp"
+        android:layout_gravity="right"
+        android:id="@+id/button_leaderbord"
         />
 
 
-    <!-- This FrameLayout insets its children based on system windows using
-         android:fitsSystemWindows. -->
 
 </FrameLayout>
